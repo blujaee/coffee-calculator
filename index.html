@@ -16,7 +16,7 @@
 
     <form>
       <label for="coffee_per_week" class="form-label">
-        How many coffees do you buy per week?
+        How many times do you buy coffee per week?
       </label>
       <input
         type="range"
@@ -26,7 +26,7 @@
         min="0"
         max="10"
         step="1"
-        value="3"
+        value="0"
       />
       <p>
         <span id="displayValue" class="fw-bold"></span>
@@ -34,9 +34,9 @@
     </form>
 
     <label for="coffee_price" class="form-label">
-        How expensive is your typical coffee?
+        
     </label>
-    <h2 class="mt-4">Choose your coffee</h2>
+    <h2 class="mt-4">Pick a drink!</h2>
 <div class="d-flex gap-3">
   <input type="radio" id="latte" name="coffeeType" value="Latte" class="btn-check" />
   <label for="latte" class="img-radio">
@@ -50,12 +50,38 @@
     <div>Espresso - $4</div>
   </label>
 
-  <input type="radio" id="drip_coffee" name="coffeeType" value="Drip Coffee" class="btn-check" />
-  <label for="Drip Coffee" class="img-radio">
-    <img src="./assets/coffee.jpg" alt="Drip Coffee" class="coffee-img" />
+  <input type="radio" id="drip_coffee" name="coffeeType" value="drip_coffee" class="btn-check" />
+  <label for="drip_coffee" class="img-radio">
+    <img src="./assets/coffee.jpg" alt="drip_coffee" class="coffee-img" />
     <div>Drip Coffee - $3</div>
   </label>
 </div>
+
+<h2 class="mt-4">If you invested instead</h2>
+<p id="invest_summary" class="text-muted"></p>
+
+<div class="mb-2">
+  <small>Compare against:</small>
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="SPY">SPY</button>
+    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="VTI">VTI</button>
+    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="AAPL">AAPL</button>
+    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="MSFT">MSFT</button>
+  </div>
+</div>
+
+<table class="table table-sm align-middle" id="stock_table">
+  <thead>
+    <tr>
+      <th>Ticker</th>
+      <th>Price</th>
+      <th>Shares w/ yearly spend</th>
+      <th>Leftover</th>
+    </tr>
+  </thead>
+  <tbody id="stock_rows"></tbody>
+</table>
+
     
 
     <!-- bootstrap js bundle -->
