@@ -5,90 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Coffee Calculator</title>
 
-    <!-- bootstrap css -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons (optional, for cute icons) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
   </head>
-  <body class="container py-4">
-    <h1 class="mb-4">Coffee Calculator</h1>
 
-    <form>
-      <label for="coffee_per_week" class="form-label">
-        How many times do you buy coffee per week?
-      </label>
-      <input
-        type="range"
-        class="form-range"
-        id="coffee_per_week"
-        name="coffee_per_week"
-        min="0"
-        max="10"
-        step="1"
-        value="0"
-      />
-      <p>
-        <span id="displayValue" class="fw-bold"></span>
-      </p>
-    </form>
+  <body class="bg-light">
+    <div class="container-md py-4">
+      <header class="mb-4 text-center">
+        <h1 class="fw-bold">☕ Coffee Calculator</h1>
+        <p class="text-muted mb-0">See how small habits add up.</p>
+      </header>
 
-    <label for="coffee_price" class="form-label">
-        
-    </label>
-    <h2 class="mt-4">Pick a drink!</h2>
-<div class="d-flex gap-3">
-  <input type="radio" id="latte" name="coffeeType" value="Latte" class="btn-check" />
-  <label for="latte" class="img-radio">
-    <img src="./assets/latte.jpeg" alt="Latte" class="coffee-img" />
-    <div>Latte - $7</div>
-  </label>
+      <div class="row g-4">
+        <!-- Left: Controls -->
+        <div class="col-12 col-lg-5">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Your inputs</h5>
 
-  <input type="radio" id="espresso" name="coffeeType" value="Espresso" class="btn-check" />
-  <label for="espresso" class="img-radio">
-    <img src="./assets/espresso.jpg" alt="Espresso" class="coffee-img" />
-    <div>Espresso - $4</div>
-  </label>
+              <!-- Slider -->
+              <form class="mb-4">
+                <label for="coffee_per_week" class="form-label">
+                  Coffees per week:
+                  <span id="displayValue" class="fw-bold"></span>
+                </label>
+                <input
+                  type="range"
+                  class="form-range"
+                  id="coffee_per_week"
+                  name="coffee_per_week"
+                  min="0"
+                  max="10"
+                  step="1"
+                  value="0"
+                />
+              </form>
 
-  <input type="radio" id="drip_coffee" name="coffeeType" value="drip_coffee" class="btn-check" />
-  <label for="drip_coffee" class="img-radio">
-    <img src="./assets/coffee.jpg" alt="drip_coffee" class="coffee-img" />
-    <div>Drip Coffee - $3</div>
-  </label>
-</div>
+              <!-- Image radios -->
+              <h6 class="mb-2">Pick a drink</h6>
+              <div class="d-flex flex-wrap gap-3">
+                <input
+                  type="radio"
+                  id="latte"
+                  name="coffeeType"
+                  value="Latte"
+                  data-price="7"
+                  class="btn-check"
+                />
+                <label for="latte" class="img-radio">
+                  <img src="./assets/latte.jpeg" alt="Latte" class="coffee-img" />
+                  <div>Latte — $7</div>
+                </label>
 
-<h2 class="mt-4">If you invested instead</h2>
-<p id="invest_summary" class="text-muted"></p>
+                <input
+                  type="radio"
+                  id="espresso"
+                  name="coffeeType"
+                  value="Espresso"
+                  data-price="4"
+                  class="btn-check"
+                  checked
+                />
+                <label for="espresso" class="img-radio">
+                  <img src="./assets/espresso.jpg" alt="Espresso" class="coffee-img" />
+                  <div>Espresso — $4</div>
+                </label>
 
-<div class="mb-2">
-  <small>Compare against:</small>
-  <div class="d-flex gap-2 flex-wrap">
-    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="SPY">SPY</button>
-    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="VTI">VTI</button>
-    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="AAPL">AAPL</button>
-    <button type="button" class="btn btn-outline-primary btn-sm cmp-ticker" data-ticker="MSFT">MSFT</button>
-  </div>
-</div>
+                <input
+                  type="radio"
+                  id="drip_coffee"
+                  name="coffeeType"
+                  value="Drip Coffee"
+                  data-price="3"
+                  class="btn-check"
+                />
+                <label for="drip_coffee" class="img-radio">
+                  <img src="./assets/coffee.jpg" alt="Drip Coffee" class="coffee-img" />
+                  <div>Drip Coffee — $3</div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
 
-<table class="table table-sm align-middle" id="stock_table">
-  <thead>
-    <tr>
-      <th>Ticker</th>
-      <th>Price</th>
-      <th>Shares w/ yearly spend</th>
-      <th>Leftover</th>
-    </tr>
-  </thead>
-  <tbody id="stock_rows"></tbody>
-</table>
+        <!-- Right: Results -->
+        <div class="col-12 col-lg-7">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body" aria-live="polite">
+              <h5 class="card-title">Your coffee spend</h5>
+              <p class="text-muted small mb-2">Assumes ~4.345 weeks/month.</p>
 
-    
+              <!-- Totals table -->
+              <table class="table table-sm align-middle mb-0">
+                <tbody>
+                  <tr>
+                    <th scope="row" class="w-25">Weekly</th>
+                    <td id="out_weekly">—</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Monthly</th>
+                    <td id="out_monthly">—</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Yearly</th>
+                    <td id="out_yearly">—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-    <!-- bootstrap js bundle -->
+          <!-- (Optional) Investing comparison — keep for later if you add API logic -->
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-2">If you invested instead</h5>
+              <p id="invest_summary" class="text-muted small"></p>
+
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0" id="stock_table">
+                  <thead>
+                    <tr><th>Ticker</th><th>Price</th><th>Shares</th><th>Leftover</th></tr>
+                  </thead>
+                  <tbody id="stock_rows"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="text-center text-muted small mt-4">
+        Built with HTML • CSS • JS • Bootstrap
+      </footer>
+    </div>
+
+    <!-- Bootstrap JS bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- your app logic -->
+    <!-- Your app logic -->
+    <script src="./config.js"></script>
     <script src="./js/app.js" defer></script>
-    <link rel="stylesheet" href="./css/style.css">
   </body>
 </html>
