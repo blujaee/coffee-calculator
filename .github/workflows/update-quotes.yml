@@ -1,0 +1,55 @@
+name: Update stock quotes
+
+on:
+  schedule:
+    # GitHub cron is UTC. Mon–Fri, every 30 min, 13:00–21:59 UTC (~9:00–17:59 ET daylight)
+    - cron: "*/30 13-21 * * 1-5"
+  workflow_dispatch: {}  # allows manual run from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Fetch quotes from Alpha Vantage
+        env:
+          AV_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+        run: |
+          TICKERS=("SPY" "VTI" "AAPL" "MSFT")  # <<< edit this list as you like
+          mkdir -p data
+
+          # start JSON
+          echo '{ "asOf": "'$(date -u +%F'T'%T'Z')'", "quotes": {' > data/quotes.json
+          first=1
+          for t in "${TICKERS[@]}"; do
+            # free tier: 5 calls/min → sleep 15s between calls to be safe
+            sleep 15
+            url="https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${t}&apikey=${AV_KEY}"
+            price=$(curl -s "$url" | jq -r '."Global Quote"."05. price" // empty')
+            if [ -n "$price" ]; then
+              if [ $first -eq 0 ]; then echo ',' >> data/quotes.json; fi
+              printf '"%s": {"price": %s}' "$t" "$price" >> data/quotes.json
+              first=0
+            fi
+          done
+          echo '}}' >> data/quotes.json
+
+      - name: Commit updated quotes.json
+        run: |
+          if ! git diff --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/quotes.json
+            git commit -m "Update quotes.json"
+            git push
+          else
+            echo "No changes in quotes.json"
+          fi
