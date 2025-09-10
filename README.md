@@ -1,5 +1,7 @@
 # ☕ Coffee Calculator  
 
+
+**NOTE: If the stock information isn't updating, there have been too many API requests. Try again tomorrow**
 A simple interactive web app that shows the real cost of your coffee habit and helps you visualize what you could buy — or invest — with that money instead. Built with **HTML, CSS, JavaScript, and Bootstrap**, and deployable for free on GitHub Pages.  
 
 ---
