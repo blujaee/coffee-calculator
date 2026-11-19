@@ -57,6 +57,10 @@ async function renderComparisons(yearlyBudget, tickers = PRESET_TICKERS) {
       `;
       stockRowsEl.appendChild(tr);
     }
+
+    if (!stockRowsEl.children.length) {
+      investSummaryEl.textContent = "Prices unavailable right now.";
+    }
   } catch (e) {
     console.error(e);
     investSummaryEl.textContent = "Prices unavailable right now.";

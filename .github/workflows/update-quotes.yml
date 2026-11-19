@@ -2,12 +2,18 @@ name: Update stock quotes
 
 on:
   schedule:
-    # GitHub cron is UTC. Mon–Fri, every 30 min, 13:00–21:59 UTC (~9:00–17:59 ET daylight)
-    - cron: "*/30 13-21 * * 1-5"
+    # GitHub cron is UTC. Mon–Fri, 5 runs/day (~10am, noon, 2pm, 4pm, 5:15pm ET daylight).
+    # Alpha Vantage free tier allows 25 requests/day: 5 runs x 4 tickers = 20.
+    - cron: "0 14,16,18,20 * * 1-5"
+    - cron: "15 21 * * 1-5"
   workflow_dispatch: {}  # allows manual run from the Actions tab
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-quotes
+  cancel-in-progress: false
 
 jobs:
   fetch:
@@ -16,31 +22,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Fetch quotes from Alpha Vantage
         env:
           AV_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
         run: |
-          TICKERS=("SPY" "VTI" "AAPL" "MSFT")  # <<< edit this list as you like
-          mkdir -p data
+          set -euo pipefail
+          TICKERS=("SPY" "VTI" "AAPL" "MSFT")  # <<< keep in sync with PRESET_TICKERS in js/app.js
 
-          # start JSON
-          echo '{ "asOf": "'$(date -u +%F'T'%T'Z')'", "quotes": {' > data/quotes.json
-          first=1
+          if [ -z "${AV_KEY:-}" ]; then
+            echo "::error::Repository secret ALPHAVANTAGE_KEY is not set (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+          mkdir -p data
+          # Start from the previous prices so a failed/rate-limited call never wipes good data.
+          quotes=$(jq -c '.quotes // {}' data/quotes.json 2>/dev/null || echo '{}')
+          updated=0
+
           for t in "${TICKERS[@]}"; do
+            url="https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${t}&apikey=${AV_KEY}"
+            resp=$(curl -s --fail --max-time 30 "$url" || echo '{}')
+            price=$(echo "$resp" | jq -r '."Global Quote"."05. price" // empty' 2>/dev/null || true)
+            day=$(echo "$resp" | jq -r '."Global Quote"."07. latest trading day" // empty' 2>/dev/null || true)
+
+            if [ -n "$price" ]; then
+              quotes=$(echo "$quotes" | jq -c --arg t "$t" --argjson p "$price" --arg d "$day" \
+                '.[$t] = {price: $p, tradingDay: $d}')
+              updated=$((updated + 1))
+              echo "$t: $price ($day)"
+            else
+              msg=$(echo "$resp" | jq -r '.Note // .Information // ."Error Message" // "unexpected response"' 2>/dev/null || echo "unparseable response")
+              echo "::warning::No price for $t: $msg"
+            fi
             # free tier: 5 calls/min → sleep 15s between calls to be safe
             sleep 15
-            url="https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${t}&apikey=${AV_KEY}"
-            price=$(curl -s "$url" | jq -r '."Global Quote"."05. price" // empty')
-            if [ -n "$price" ]; then
-              if [ $first -eq 0 ]; then echo ',' >> data/quotes.json; fi
-              printf '"%s": {"price": %s}' "$t" "$price" >> data/quotes.json
-              first=0
-            fi
           done
-          echo '}}' >> data/quotes.json
+
+          if [ "$updated" -eq 0 ]; then
+            echo "::error::Alpha Vantage returned no prices (bad key or daily limit reached). Keeping previous data/quotes.json."
+            exit 1
+          fi
+
+          jq -n --arg asOf "$(date -u +%FT%TZ)" --argjson q "$quotes" '{asOf: $asOf, quotes: $q}' > data/quotes.json
+          cat data/quotes.json
 
       - name: Commit updated quotes.json
         run: |
@@ -49,6 +73,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add data/quotes.json
             git commit -m "Update quotes.json"
+            git pull --rebase
             git push
           else
             echo "No changes in quotes.json"
