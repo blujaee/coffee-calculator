@@ -1,17 +1,17 @@
 {
-  "asOf": "2026-11-24T23:21:03Z",
+  "asOf": "2026-11-25T04:12:02Z",
   "quotes": {
     "SPY": {
-      "price": 718.5800,
+      "price": 718.7800,
       "tradingDay": "2026-11-24"
     },
     "VTI": {
-      "price": 353.8500,
+      "price": 353.8400,
       "tradingDay": "2026-11-24"
     },
     "AAPL": {
-      "price": 349.0800,
-      "tradingDay": "2026-11-23"
+      "price": 354.0700,
+      "tradingDay": "2026-11-24"
     },
     "MSFT": {
       "price": 496.1300,
